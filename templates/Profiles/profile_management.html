@@ -1,0 +1,331 @@
+{% extends 'index.html' %}
+{% load static %}
+
+{% block page_title %}
+    Manage Profile
+{% endblock %}
+
+{% block extra_css %}
+    <style>
+        .select2-container{
+            width: 100% !important;
+            max-width: 100%;
+        }
+
+        .add-row {
+            margin-left: 15px;
+        }
+
+        .delete-row {
+            position: absolute;
+            top: 0;
+            right: 15px;
+            padding: 1px 2px;
+        }
+
+        .error-div {
+            color: #a94442;
+            padding: 10px;
+            border: 1px solid #a94442;
+            border-radius: 5px;
+            font-size: 15px;
+            margin-top: 10px;
+            font-weight: bold;
+        }
+
+        .success-div {
+            color: #08a900;
+            padding: 10px;
+            border: 1px solid #08a900;
+            border-radius: 5px;
+            font-size: 15px;
+            margin-top: 10px;
+            font-weight: bold;
+        }
+    </style>
+
+    <style>
+        .select2-result-repository {
+            padding-top: 4px;
+            padding-bottom: 3px;
+            display: flex
+        }
+
+        .select2-result-repository__avatar {
+            float: left;
+            width: 40px;
+            margin-right: 10px
+        }
+
+        .select2-result-repository__avatar img {
+            width: 100%;
+            height: auto;
+            border-radius: 2px;
+            border: 1px solid gray
+        }
+
+        .select2-result-repository__title {
+            color: black;
+            font-weight: 700;
+            word-wrap: break-word;
+            line-height: 1.1;
+            margin-bottom: 4px
+        }
+
+        .select2-result-repository__description {
+            font-size: 13px;
+            color: #777;
+            margin-top: 4px;
+        }
+
+        .select2-results__option--highlighted {
+            background-color: #ededed !important;
+            color: #000 !important;
+        }
+
+        /* .select2-results__option--highlighted .select2-result-repository__title {
+            color: white;
+        }
+
+        .select2-results__option--highlighted .select2-result-repository__description {
+            color: #c6dcef;
+        } */
+
+        .add-new-button, .remove-form-button {
+            font-weight: bold !important;
+        }
+    </style>
+{% endblock %}
+
+
+{% block content_header %}
+    <div class="row m-0 mb-2">
+        <div class="col-sm-10 align-self-sm-end">
+            <h1 style="color:#003366;">Add/Edit Profile</h1>
+        </div>
+    </div>
+{% endblock %}
+
+{% block content %}
+    <div class="row">
+        <div class="col-md-12">
+            <form method="post">
+                {% csrf_token %}
+
+                <!--        Basic Details            -->
+                <div class="card card-outline card-primary">
+                    <div class="card-header with-border">
+                        <h3 class="card-title">Basic Details</h3>
+                    </div>
+
+                    <div class="card-body">
+                        <div class="row">
+
+                            {% for field in form %}
+                                {% if field.field.widget.input_type == "checkbox" %}
+                                    <div class="col-md-4">
+                                        <div class="form-group {% if field.errors %}has-error{% else %}has-feedback{% endif %}">
+                                            <div class="mt-4">
+												<div class="icheck-primary pt-3">
+                                                    {{ field }}
+                                                    {{ field.label_tag }} {% if field.field.required %} <span style="color: red">*</span> {% endif %}
+												</div>
+                                                <div class="help-block text-gray">{{ field.help_text }}</div>
+                                                {% if field.errors %}
+                                                    <ul class="help-block text-danger list-unstyled">
+                                                        {% for error in field.errors %}
+                                                            <li>{{ error }}</li>
+                                                        {% endfor %}
+                                                    </ul>
+                                                {% endif %}
+                                            </div>
+                                        </div>
+                                    </div>
+                                {% else %}
+                                    <div class="{% if field.field.widget.input_type %}col-md-4{% else %}col-md-12{% endif %}">
+                                        <div class="form-group {% if field.errors %}has-error{% else %}has-feedback{% endif %}">
+                                            {{ field.label_tag }} {% if field.field.required %} <span style="color: red">*</span> {% endif %}
+                                            {{ field }}
+                                            <div class="help-block text-gray">{{ field.help_text }}</div>
+                                            {% if field.errors %}
+                                                <ul class="help-block text-danger list-unstyled">
+                                                    {% for error in field.errors %}
+                                                        <li>{{ error }}</li>
+                                                    {% endfor %}
+                                                </ul>
+                                            {% endif %}
+                                        </div>
+                                    </div>
+                                {% endif %}
+                            {% endfor %}
+                        </div>
+
+                    </div>
+                </div>
+
+
+                <!--        Skills            -->
+                <div class="card card-outline card-primary">
+                    <div class="card-header with-border">
+                        <h3 class="card-title">
+							<i class="fas fa-pencil-alt"></i> &nbsp;Skill
+						</h3>
+                    </div>
+
+                    <div class="card-body">
+                        {{ profile_skill_formset.management_form }}
+                        {% for skill_form in profile_skill_formset %}
+
+						<div class="oneline-repete-row skill_formset_row">
+							<div class="row">
+								<div class="col-auto">
+									<h3 class="no-margin mb-0 mt-4 pt-2">#{{ forloop.counter }}</h3>
+								</div>
+								{% for field in skill_form.visible_fields %}
+									<div class="{% if not field.label == 'Delete' %}col{% else %}d-none{% endif %}">
+										<div class="form-group {% if field.errors %}has-error{% else %}has-feedback{% endif %}">
+											{{ field.label_tag }}
+											{{ field }}
+											{% if field.errors %}
+												<ul class="help-block list-unstyled">
+													{% for error in field.errors %}
+														<li>{{ error }}</li>
+													{% endfor %}
+												</ul>
+											{% endif %}
+										</div>
+									</div>
+								{% endfor %}
+
+								{% for hidden in skill_form.hidden_fields %}
+									{{ hidden }}
+								{% endfor %}
+								<hr>
+							</div>
+						</div>
+                        {% endfor %}
+						</div>
+                    </div>
+
+				<!--   Card Footer    -->
+                <div class="pb-3 pt-1">
+                    <button type="submit" class="btn btn-primary mr-2">Submit</button>
+                    {% csrf_token %}
+                        <a href="/" class="btn btn-danger">Cancel</a>
+                </div>
+            </form>
+        </div>
+    </div>
+{% endblock %}
+
+{% block extra_js %}
+    <!-- jQuery -->
+    <script src="{% static 'jquery/jquery.min.js' %}"></script>
+    <script type="application/javascript" src="{% static 'js/jquery.formset.js' %}"></script>
+
+    <script>
+        $(document).ready(function () {
+            $(document).on('submit', 'form', function (e) {
+                $(this).find('button').attr('disabled', 'disabled');
+            });
+        });
+
+        $('.skill_formset_row').formset({
+            addText: 'Add Skill',
+            addCssClass: 'btn btn-primary',
+            deleteCssClass: 'btn btn-danger fa fa-trash bg-red formset-delete-btn',
+            deleteText: '',
+            prefix: 'skills_set',
+            formCssClass: 'skill-inline-form',
+        });
+    </script>
+
+    <script>
+        function formatRepo(repo) {
+            if (repo.loading) {
+                return repo.text;
+            }
+
+            var $container = $(
+                "<div class='select2-result-repository clearfix'>" +
+                "<div class='select2-result-repository__avatar'><img src='" + repo.logo + "' /></div>" +
+                "<div class='select2-result-repository__meta'>" +
+                "<div class='select2-result-repository__title'></div>" +
+                "<div class='select2-result-repository__description'></div>" +
+                "</div>" +
+                "</div>"
+            );
+
+            $container.find(".select2-result-repository__title").text(repo.text);
+            $container.find(".select2-result-repository__description").text(repo.linkedin_url);
+
+            return $container;
+        }
+
+        $(document).ready(function () {
+            $(document).on('submit', 'form', function (e) {
+                $(this).find('button').attr('disabled', 'disabled');
+            });
+
+            $('.datetimepicker-input').datetimepicker({
+                format: 'YYYY-MM-DD',
+                useCurrent: false,
+                buttons: {
+                    showClear: true
+                }
+            });
+
+        });
+
+        $(document).on('click', '.add-new-button', function (e) {
+            e.preventDefault();
+            var add_button = $(this);
+            var field_name = add_button.data('name');
+            var form_block = add_button.data('form-block');
+            var total_forms_field = $('#' + form_block + '-TOTAL-FORMS')
+            var total_forms = total_forms_field.val();
+            var new_form_count = parseInt(total_forms) + 1;
+            var new_form_count_string = '-' + new_form_count.toString();
+
+            $('#' + form_block + ' .select-ajax').select2('destroy');
+            $('#' + form_block + ' .select-firm-details').select2('destroy');
+            $('#' + form_block + ' .select-simple').select2('destroy');
+            var new_added_form = $('.' + form_block + ':last').clone().appendTo('#' + form_block);
+            new_added_form.attr('id', form_block + new_form_count_string);
+            new_added_form.find('textarea, input, select').each(function () {
+                var curr_field = $(this);
+                curr_field.attr('id', curr_field.data('field-name') + new_form_count_string);
+                if (field_name === 1 && $(this).attr('type') !== "hidden"){
+                    curr_field.attr('name', curr_field.data('field-name') + new_form_count_string);
+                }
+                curr_field.val('');
+            });
+            new_added_form.find('#firm-counter-id' + new_form_count_string).val(new_form_count);
+            new_added_form.find('.firm-formset-label').html("#" + new_form_count);
+            init_select2($('#' + form_block + ' .select-ajax'));
+            init_industry_select2($('#' + form_block + ' .select-firm-details'));
+            $('#' + form_block + ' .select-simple').select2();
+
+            $('.' + form_block).not('#' + form_block + new_form_count_string).each(function () {
+                $(this).find('.add-new-button').addClass('remove-form-button').addClass('fa-trash').addClass('btn-danger')
+                    .removeClass('fa-plus').removeClass('add-new-button').removeClass('btn-primary')
+                    .attr('id', form_block + '-REMOVE-BTN' + new_form_count_string);
+            });
+
+            total_forms_field.val(new_form_count);
+        });
+
+        $(document).on('click', '.remove-form-button', function (e) {
+            e.preventDefault();
+            var remove_button = $(this);
+            var form_block = remove_button.data('form-block');
+            var total_forms_field = $('#' + form_block + '-TOTAL-FORMS');
+            var total_forms = total_forms_field.val();
+            var new_form_count = parseInt(total_forms) - 1;
+
+            remove_button.closest('.' + form_block).remove();
+            {#total_forms_field.val(new_form_count);#}
+        });
+
+    </script>
+{% endblock %}
